@@ -64,7 +64,8 @@ def packIntoNpArray( numberOfCols, numberOfRows):
         
 def prepareSolution(solution):
 # polepaszanie rozwi¹zania
-# TO DO chyba wszystko by tu trzeba zrobic
+# sortowanie zrobione
+# grupuje produkty i ustawia je w kolejnoœci wedlug pierwszego wystapiena
     
     numberOfRows = solution[:,1].size
     numberOfCols = solution[1,:].size
