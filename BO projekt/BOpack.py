@@ -1,3 +1,4 @@
+import os
 import csv
 import random
 import copy
@@ -46,7 +47,6 @@ def generatePriorityList(problemSize):
     
     return tempList
 
-#dupos
 
 def mutate(genome,goodsList):
 # mutacja pojedyñczego przebiegu poprzez podmiane pojedyñczego produktu na inny (b¹dŸ taki sam) wybrany losowo 
@@ -56,21 +56,46 @@ def mutate(genome,goodsList):
     x = random.randint(0,genome[:,1].size-1)
     y = random.randint(0,genome[1,:].size-1)
     genome[x][y] = goodsList[random.randint(0,len(goodsList) - 1)]
-    return genome
+    solution = prepareSolution(genome)
+    return solution
         
-        
+def packIntoNpArray( numberOfCols, numberOfRows):
+    print('cols: ',numberOfCols,' rows: ',numberOfRows)
         
 def prepareSolution(solution):
 # polepaszanie rozwi¹zania
 # TO DO chyba wszystko by tu trzeba zrobic
+    
+    numberOfRows = solution[:,1].size
+    numberOfCols = solution[1,:].size
+    tempSolution = np.zeros((numberOfRows,numberOfCols), dtype=np.int16)
     orderOfTransportedGoods = []
+    
     for eachRow in solution:
+        
         for eachCell in eachRow:
+            
             if not (eachCell in orderOfTransportedGoods):
+                
                 orderOfTransportedGoods.append(eachCell)
-                #print() 
-    print (len(orderOfTransportedGoods))
-    return solution
+    
+    stupidTempList = []
+    
+    for each in orderOfTransportedGoods:
+        
+        for _ in range(np.count_nonzero(solution == each)):
+            
+            stupidTempList.append(each)
+    
+    stupidTempList.reverse()
+    
+    for i in range(numberOfRows):
+        
+        for j in range(numberOfCols):
+            
+            tempSolution[i][j] = stupidTempList.pop()
+    
+    return tempSolution
 
 
 def openCsvFile(fileName):
@@ -78,16 +103,20 @@ def openCsvFile(fileName):
 # w tym wypadku jest to tabela z odleg³oœciami pomiêdzy poszczególnymi produktami
     
     with open(fileName, 'rt') as csvfile:
+        
         tempList = []
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         
         for row in spamreader:
+            
             tempList.append(row)
             
         tempMatrix = np.zeros((112,112), dtype=np.int16) 
         
         for i in (range(len(tempList))):
+            
             for j in (range(len(tempList))):
+                
                 tempMatrix[i][j] = tempList[i][j]
         
         return tempMatrix
@@ -152,7 +181,7 @@ def doMagic(numberOfIterations,numberOfIndividuals, distanceMatrix, goodsList, s
             tempSol = mutate(genomeList[j][1],goodsList)
             tempList.append([getFitness(tempSol,distanceMatrix,startPriorityList),tempSol])
         
-        #tempList.sort(key=lambda list1: list1[0]) # sortowanie tylko po wartoœci fitu array z np nie nadaje siê do sortowania     
+        tempList.sort(key=lambda list1: list1[0]) # sortowanie tylko po wartoœci fitu array z np nie nadaje siê do sortowania     
         tempListFin = []
         tempListFin.append(tempList[0])
         
@@ -171,7 +200,9 @@ def doMagic(numberOfIterations,numberOfIndividuals, distanceMatrix, goodsList, s
         
         genomeList = copy.deepcopy(tempListFin)
         bestGenomesList.append((genomeList[0])[0])
-        print (i/numberOfIterations)
+        clear = lambda: os.system('cls')
+        clear()
+        print (' ',(100*i/numberOfIterations),'%')
     
     print('end')
     print ((genomeList[0])[0])
