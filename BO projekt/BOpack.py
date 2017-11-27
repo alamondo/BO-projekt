@@ -51,6 +51,7 @@ def generatePriorityList(problemSize):
 def mutate(genome,goodsList):
 # mutacja pojedyñczego przebiegu poprzez podmiane pojedyñczego produktu na inny (b¹dŸ taki sam) wybrany losowo 
 # TO DO poprawienie rozwi¹zañ po mutacji (jakieœ sortowanie czy coœ)
+# moœ soœ
     
     x = random.randint(0,genome[:,1].size-1)
     y = random.randint(0,genome[1,:].size-1)
@@ -100,7 +101,7 @@ def getFitness(solution, distanceMatrix, startPriorityList):
 # postac tego wskaznika: suma odleglosci poamiedzy produktami w pojedynczych wyjazdach
 # (bez powrotu do bazy)
 # dodano wskaznik piorytetu 
-# TO DO rozbudowac
+# TODO rozbudowac
     
     endPriorityList = copy.deepcopy(startPriorityList)
     
