@@ -46,7 +46,7 @@ def generatePriorityList(problemSize):
     
     return tempList
 
-
+#dupos
 
 def mutate(genome,goodsList):
 # mutacja pojedyñczego przebiegu poprzez podmiane pojedyñczego produktu na inny (b¹dŸ taki sam) wybrany losowo 
