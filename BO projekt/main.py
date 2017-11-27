@@ -1,5 +1,5 @@
 import BOpack as bo
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 bo.random.seed(12)
 
