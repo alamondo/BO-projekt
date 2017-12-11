@@ -6,7 +6,7 @@ import numpy as np
 
 
 def generateGoodsList(goodsListSize):
-# stworzenie listy ID produktów 
+# stworzenie listy ID produktow
     
     temp = []
     
@@ -19,7 +19,7 @@ def generateGoodsList(goodsListSize):
 
 def generateExampleSolution(maxWeight, maxNumCourses,goodsList):
 # stworzenie losowego przebiegu
-# sklep i magazyn s¹ jednakowe (lustrzane odbicie)
+# sklep i magazyn sa jednakowe (lustrzane odbicie)
     
     tempMatrix = np.zeros((maxNumCourses,maxWeight), dtype=np.int16 )
     
@@ -32,7 +32,7 @@ def generateExampleSolution(maxWeight, maxNumCourses,goodsList):
 
 
 def generatePriorityList(problemSize):
-# generowanie maksymalnych ilosci towarów na pó³kach
+# generowanie maksymalnych ilosci towarow na plkach
 # generowanie obecnego stanu sklepu
 # obliczanie piorytetu 
     
@@ -49,9 +49,8 @@ def generatePriorityList(problemSize):
 
 
 def mutate(genome,goodsList):
-# mutacja pojedyñczego przebiegu poprzez podmiane pojedyñczego produktu na inny (b¹dŸ taki sam) wybrany losowo 
-# TO DO poprawienie rozwi¹zañ po mutacji (jakieœ sortowanie czy coœ)
-# moœ soœ
+# mutacja pojedynczego przebiegu poprzez podmiane pojedynczego produktu na inny (beda taki sam) wybrany losowo
+# TODO poprawienie rozwiazan po mutacji (jakies sortowanie czy cos)
     
     x = random.randint(0,genome[:,1].size-1)
     y = random.randint(0,genome[1,:].size-1)
@@ -63,9 +62,9 @@ def packIntoNpArray( numberOfCols, numberOfRows):
     print('cols: ',numberOfCols,' rows: ',numberOfRows)
         
 def prepareSolution(solution):
-# polepaszanie rozwi¹zania
+# polepaszanie rozwiazania
 # sortowanie zrobione
-# grupuje produkty i ustawia je w kolejnoœci wedlug pierwszego wystapiena
+# grupuje produkty i ustawia je w kolejnosci wedlug pierwszego wystapiena
     
     numberOfRows = solution[:,1].size
     numberOfCols = solution[1,:].size
@@ -100,8 +99,8 @@ def prepareSolution(solution):
 
 
 def openCsvFile(fileName):
-# otwieroanie pliku csv o zadanej w ciele funkcji wielkoœci 
-# w tym wypadku jest to tabela z odleg³oœciami pomiêdzy poszczególnymi produktami
+# otwieroanie pliku csv o zadanej w ciele funkcji wielkosci
+# w tym wypadku jest to tabela z odleglosciami pomiedzy poszczegolnymi produktami
     
     with open(fileName, 'rt') as csvfile:
         
@@ -126,8 +125,8 @@ def openCsvFile(fileName):
     
     
 def getFitness(solution, distanceMatrix, startPriorityList):
-# obliczania wskaŸnika 'fitu' dla pojedyñczego przebiegu
-# obliczany jest on tylko dla jednej czêœi
+# obliczania wskaznika 'fitu' dla pojedynczego przebiegu
+# obliczany jest on tylko dla jednej czesci
 # postac tego wskaznika: suma odleglosci poamiedzy produktami w pojedynczych wyjazdach
 # (bez powrotu do bazy)
 # dodano wskaznik piorytetu 
@@ -158,11 +157,11 @@ def getFitness(solution, distanceMatrix, startPriorityList):
 
 
 def doMagic(numberOfIterations,numberOfIndividuals, distanceMatrix, goodsList, startPriorityList):
-# tu siê dzieje magia
+# tu sie dzieje magia
 # glowna czesc programu 
 # tworzymy pule X osobnikow 
 # nastepnie mutujemy podczas Y iteracji
-# TO DO wybor osobnikow po dokonaniu mutacji (teraz robimy dla nich konkurs)
+# TODO wybor osobnikow po dokonaniu mutacji (teraz robimy dla nich konkurs)
     
     genomeList = []
     bestGenomesList = []
@@ -182,7 +181,7 @@ def doMagic(numberOfIterations,numberOfIndividuals, distanceMatrix, goodsList, s
             tempSol = mutate(genomeList[j][1],goodsList)
             tempList.append([getFitness(tempSol,distanceMatrix,startPriorityList),tempSol])
         
-        tempList.sort(key=lambda list1: list1[0]) # sortowanie tylko po wartoœci fitu array z np nie nadaje siê do sortowania     
+        tempList.sort(key=lambda list1: list1[0]) # sortowanie tylko po wartoï¿½ci fitu array z np nie nadaje siï¿½ do sortowania     
         tempListFin = []
         tempListFin.append(tempList[0])
         
