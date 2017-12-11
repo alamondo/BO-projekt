@@ -160,7 +160,7 @@ def doMagic(numberOfIterations,numberOfIndividuals, distanceMatrix, goodsList, s
 # tu sie dzieje magia
 # glowna czesc programu 
 # tworzymy pule X osobnikow 
-# nastepnie mutujemy podczas Y iteracj
+# nastepnie mutujemy podczas Y iteracji
 # TODO wybor osobnikow po dokonaniu mutacji (teraz robimy dla nich konkurs)
     
     genomeList = []
