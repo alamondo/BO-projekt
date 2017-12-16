@@ -7,7 +7,7 @@ import os
 def test(vectorOfIterNum,vectorOfPopulationSizes,vectorOfCrossChances,randomSeed):
 # wykonanie algorytmu dla wszystkich kombinacji wartosci w wektorach
 
-    numberOfThingsToCheck = len(vectorOfCrossChances) + len(vectorOfPopulationSizes) + len(vectorOfIterNum)
+    numberOfThingsToCheck = len(vectorOfCrossChances) * len(vectorOfPopulationSizes) * len(vectorOfIterNum)
     thingsChecked = 1
 
     random.seed(randomSeed)
@@ -24,7 +24,7 @@ def test(vectorOfIterNum,vectorOfPopulationSizes,vectorOfCrossChances,randomSeed
                 print(' ',np.int16(100 * thingsChecked / numberOfThingsToCheck), '%')
                 thingsChecked += 1
                 data.append([
-                    bo.doMagic(eachIterNum,eachPopSize,eachChance,distanceMatrix,goods,priority)[-1],
+                    np.int16(bo.doMagic(eachIterNum,eachPopSize,eachChance,distanceMatrix,goods,priority)[-1]),
                     eachIterNum,
                     eachPopSize,
                     eachChance
@@ -35,7 +35,6 @@ def test(vectorOfIterNum,vectorOfPopulationSizes,vectorOfCrossChances,randomSeed
 def showTestResults(testResultsMatrix):
 # prezentowanie wynikow testow
 # ultra biedne
-# TODO zapis do pliku w celu odczytania w Matlabie
 
     i = 1
     for each in testResultsMatrix:
