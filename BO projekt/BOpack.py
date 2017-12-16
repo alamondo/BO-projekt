@@ -2,6 +2,7 @@ import os
 import csv
 import random
 import copy
+import datetime
 import numpy as np
 
 
@@ -140,8 +141,32 @@ def openCsvFile(fileName):
         return tempMatrix
     return None
     
-    
-    
+def saveCsvFile(input):
+# zapisuje dane z testow do pliku csv z timestampem
+
+    now = list(str(datetime.datetime.now()).split('.')[0])
+    now[10] = '_'
+    now[13] = '-'
+    now[16] = '-'
+    stamp = "".join(now)
+
+    ofile = open(stamp+'.csv', "w", newline='')
+    writer = csv.writer(ofile, delimiter=',')
+    writer.writerow(['fit','numOfIter','popSize','chance'])
+
+    for row in input:
+
+        data = []
+
+        for each in row:
+
+            data.append(str(each))
+
+        writer.writerow(data)
+
+    ofile.close()
+
+
 def getFitness(solution, distanceMatrix, startPriorityList):
 # obliczania wskaznika 'fitu' dla pojedynczego przebiegu
 # obliczany jest on tylko dla jednej czesci
@@ -203,22 +228,22 @@ def generateTwoRandIndx(listOfGenomes):
 
 def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMatrix,goodsList,startPriorityList):
 # tu sie dzieje magia
-# glowna czesc programu 
-# tworzymy pule X osobnikow 
+# glowna czesc programu
 # nastepnie mutujemy podczas Y iteracji
 # wybieramy pomiedzy mutacja a krzyzowaniem za pomoca 'ruletki'
 # zachowujemy najlepszy osobnik z poprzedniej iteracji
 # wybieramy nowa liste osobnik
 
-    genomeList = []
+
     bestGenomesList = []
 
-    # generowanie poczatkowej listy genowmow
+# generowanie poczatkowej listy genowmow
 
-    for _ in range(0,numberOfIndividuals):
-        
-        tempSol = generateExampleSolution(20,50,goodsList)
-        genomeList.append([getFitness(tempSol,distanceMatrix,startPriorityList),tempSol])
+    genomeList = []
+
+    for _ in range(0, numberOfIndividuals):
+        tempSol = generateExampleSolution(20, 50, goodsList)
+        genomeList.append([getFitness(tempSol, distanceMatrix, startPriorityList), tempSol])
 
     # wykonanie zadanej ilosci iteracji
 
