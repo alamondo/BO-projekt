@@ -17,7 +17,7 @@ def generateGoodsList(goodsListSize):
 
 
 
-def generateExampleSolution(maxWeight, maxNumCourses,goodsList):
+def generateExampleSolution(maxWeight,maxNumCourses,goodsList):
 # stworzenie losowego przebiegu
 # sklep i magazyn sa jednakowe (lustrzane odbicie)
     
@@ -47,18 +47,36 @@ def generatePriorityList(problemSize):
     
     return tempList
 
-
 def mutate(genome,goodsList):
 # mutacja pojedynczego przebiegu poprzez podmiane pojedynczego produktu na inny (beda taki sam) wybrany losowo
-# TODO poprawienie rozwiazan po mutacji (jakies sortowanie czy cos)
-    
+
     x = random.randint(0,genome[:,1].size-1)
     y = random.randint(0,genome[1,:].size-1)
     genome[x][y] = goodsList[random.randint(0,len(goodsList) - 1)]
     solution = prepareSolution(genome)
+
     return solution
-        
+
+def crossover(genome1,genome2):
+# skrzyzowanie dwoch osobnikow poprzez przeciecie ich w polowie
+# a nastepnie dolozenie drugiej czesci drugiego osobnika do pierwszej pierszego
+# nastepnie poprawiamy rozwiazanie
+
+    numCourses = genome1[:,1].size
+    newGenome = copy.deepcopy(genome1)
+    cutPoint = np.int16(np.floor(numCourses/2))
+
+    for i in range(cutPoint,numCourses):
+
+        newGenome[i,:] = genome2[i,:]
+
+    solution = prepareSolution(newGenome)
+
+    return solution
+
+
 def packIntoNpArray( numberOfCols, numberOfRows):
+#to chyba jest od usuniecia
     print('cols: ',numberOfCols,' rows: ',numberOfRows)
         
 def prepareSolution(solution):
@@ -129,8 +147,7 @@ def getFitness(solution, distanceMatrix, startPriorityList):
 # obliczany jest on tylko dla jednej czesci
 # postac tego wskaznika: suma odleglosci poamiedzy produktami w pojedynczych wyjazdach
 # (bez powrotu do bazy)
-# dodano wskaznik piorytetu 
-# TODO rozbudowac
+# dodano wskaznik piorytetu
     
     endPriorityList = copy.deepcopy(startPriorityList)
     
@@ -154,56 +171,89 @@ def getFitness(solution, distanceMatrix, startPriorityList):
     
     return (dist * 0.1) / (averagePriority**2)
 
+def genarateNewListOfGenomes(oldList):
+# wybieranie nowej listy osobnikow
+# wyboru dokonujemy za pomoca turnieju
 
+    newList = []
+    newList.append(oldList[0])
 
-def doMagic(numberOfIterations,numberOfIndividuals, distanceMatrix, goodsList, startPriorityList):
+    while len(newList) <= len(oldList):
+
+        [index,index2] = generateTwoRandIndx(oldList)
+
+        if oldList[index][0] <= oldList[index2][0]:
+            newList.append(oldList[index])
+        else:
+            newList.append(oldList[index2])
+
+    genomeList = copy.deepcopy(newList)
+
+    return genomeList
+
+def generateTwoRandIndx(listOfGenomes):
+
+    index = random.randint(0, len(listOfGenomes) - 1)
+    index2 = index
+
+    while index2 == index:
+        index2 = random.randint(0, len(listOfGenomes) - 1)
+
+    return [index,index2]
+
+def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMatrix,goodsList,startPriorityList):
 # tu sie dzieje magia
 # glowna czesc programu 
 # tworzymy pule X osobnikow 
 # nastepnie mutujemy podczas Y iteracji
-# TODO wybor osobnikow po dokonaniu mutacji (teraz robimy dla nich konkurs)
-    
+# wybieramy pomiedzy mutacja a krzyzowaniem za pomoca 'ruletki'
+# zachowujemy najlepszy osobnik z poprzedniej iteracji
+# wybieramy nowa liste osobnik
+
     genomeList = []
     bestGenomesList = []
+
+    # generowanie poczatkowej listy genowmow
 
     for _ in range(0,numberOfIndividuals):
         
         tempSol = generateExampleSolution(20,50,goodsList)
         genomeList.append([getFitness(tempSol,distanceMatrix,startPriorityList),tempSol])
 
+    # wykonanie zadanej ilosci iteracji
+
     for i in range(0,numberOfIterations):
         
         tempList = []
         tempList.append(genomeList[0])
-        
+
+        # mutowanie badz krzyzowanie
+
         for j in range(0,numberOfIndividuals-1):
-        
-            tempSol = mutate(genomeList[j][1],goodsList)
-            tempList.append([getFitness(tempSol,distanceMatrix,startPriorityList),tempSol])
-        
-        tempList.sort(key=lambda list1: list1[0]) # sortowanie tylko po warto�ci fitu array z np nie nadaje si� do sortowania     
-        tempListFin = []
-        tempListFin.append(tempList[0])
-        
-        while len(tempListFin) <= len(tempList):
-            
-            index = random.randint(0,len(tempList)-1)
-            index2 = index
-            
-            while index2 == index:
-                index2 = random.randint(0,len(tempList)-1)
-            
-            if tempList[index][0] <= tempList[index2][0]:
-                tempListFin.append(tempList[index])
+
+            randomNumber = random.randint(1,100)
+
+            if randomNumber > chanceOfCrossover:
+                tempSol = mutate(genomeList[j][1],goodsList)
             else:
-                tempListFin.append(tempList[index2])
-        
-        genomeList = copy.deepcopy(tempListFin)
-        bestGenomesList.append((genomeList[0])[0])
-        clear = lambda: os.system('cls')
-        clear()
+                [index,index2] = generateTwoRandIndx(genomeList)
+                tempSol = crossover(genomeList[index][1],genomeList[index2][1])
+
+            tempList.append([getFitness(tempSol, distanceMatrix, startPriorityList), tempSol])
+
+        # sortowanie tylko po wartosci fitu
+        # array z np nie nadaje sie do sortowania
+        # nie wiem czemu ale bez tego nie dziala
+
+        tempList.sort(key=lambda list1: list1[0])
+
+        genomeList = genarateNewListOfGenomes(tempList)
+        bestGenomesList.append((genomeList[0])[0]) # zapisywanie najlepszego osobnika
+        #clear = lambda: os.system('cls')
+        #clear()
         print (' ',(100*i/numberOfIterations),'%')
-    
+    '''
     print('end')
     print ((genomeList[0])[0])
+    '''
     return bestGenomesList
