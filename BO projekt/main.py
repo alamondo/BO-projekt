@@ -14,12 +14,14 @@ testModule.showTestResults(temp)
 bo.saveCsvFile(temp)
 
 '''
+
+
 random.seed(12)
 distanceMatrix = bo.openCsvFile('tabelaOdleglosci.csv')
 goods = bo.generateGoodsList(112)
 priority = bo.generatePriorityList(112)
 
-plotData = bo.doMagic(250, 100, 70, distanceMatrix, goods, priority)
+plotData = bo.doMagic(20, 20, 70, distanceMatrix, goods, priority)
 
 plt.plot(plotData)
 plt.title('temp')

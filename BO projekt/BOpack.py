@@ -83,7 +83,7 @@ def prepareSolution(solution):
 # polepaszanie rozwiazania
 # sortowanie zrobione
 # grupuje produkty i ustawia je w kolejnosci wedlug pierwszego wystapiena
-    
+
     numberOfRows = solution[:,1].size
     numberOfCols = solution[1,:].size
     tempSolution = np.zeros((numberOfRows,numberOfCols), dtype=np.int16)
@@ -172,28 +172,29 @@ def getFitness(solution, distanceMatrix, startPriorityList):
 # postac tego wskaznika: suma odleglosci poamiedzy produktami w pojedynczych wyjazdach
 # (bez powrotu do bazy)
 # dodano wskaznik piorytetu
-    
+# TODO przyspieszyc
+    '''
     endPriorityList = copy.deepcopy(startPriorityList)
-    
+
     for eachRow in solution:
         for eachCell in eachRow:
             endPriorityList[eachCell-1][1] += 1
             endPriorityList[eachCell-1][2] = endPriorityList[eachCell-1][1]/endPriorityList[eachCell-1][0]
-    
+    '''
     sumOfPriority = 0        
-    
+
     for each in startPriorityList:
-        sumOfPriority = sumOfPriority + each[2]
-    
+        sumOfPriority += each[2]
+
     averagePriority = sumOfPriority / len(startPriorityList)
     dist = 0
     
     for i in range(solution[:,1].size): # ilosc powtorzen
         for j in range(solution[1,:].size-1): # masa  przewioziona
-            dist = dist + distanceMatrix[solution[i][j]-1][solution[i][j+1]-1]
-        dist = dist + 10
+            dist += distanceMatrix[solution[i][j]-1][solution[i][j+1]-1]
+        dist += 10
     
-    return (dist * 0.1) / (averagePriority**2)
+    return dist/averagePriority
 
 def chooseNewListOfGenomes(oldList):
 # wybieranie nowej listy osobnikow
@@ -254,8 +255,9 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
     # wykonanie zadanej ilosci iteracji
 
     for i in range(0,numberOfIterations):
-        
+        start = datetime.datetime.now()
         tempList = []
+        #tempArray = np.zeros()
         tempList.append(genomeList[0])
 
         # mutowanie badz krzyzowanie
@@ -274,7 +276,8 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
 
         # sortowanie tylko po wartosci fitu
         # array z np nie nadaje sie do sortowania
-        # nie wiem czemu ale bez tego nie dziala
+
+        #tempArray = np.array(tempList)
 
         tempList.sort(key=lambda list1: list1[0])
 
@@ -283,6 +286,9 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
         #clear = lambda: os.system('cls')
         #clear()
         print (' ',(100*i/numberOfIterations),'%')
+
+
+        print(datetime.datetime.now()-start)
     '''
     print('end')
     print ((genomeList[0])[0])
