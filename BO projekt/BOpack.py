@@ -49,7 +49,7 @@ def generatePriorityList(problemSize):
     return tempList
 
 def mutate(genome,goodsList):
-# mutacja pojedynczego przebiegu poprzez podmiane pojedynczego produktu na inny (beda taki sam) wybrany losowo
+# mutacja pojedynczego przebiegu poprzez podmiane pojedynczego produktu na inny (badz taki sam) wybrany losowo
 
     x = random.randint(0,genome[:,1].size-1)
     y = random.randint(0,genome[1,:].size-1)
@@ -74,7 +74,6 @@ def crossover(genome1,genome2):
     solution = prepareSolution(newGenome)
 
     return solution
-
 
 def packIntoNpArray( numberOfCols, numberOfRows):
 #to chyba jest od usuniecia
@@ -150,7 +149,7 @@ def saveCsvFile(input):
     now[16] = '-'
     stamp = "".join(now)
 
-    ofile = open(stamp+'.csv', "w", newline='')
+    ofile = open('tests/'+stamp+'.csv', "w", newline='')
     writer = csv.writer(ofile, delimiter=',')
     writer.writerow(['fit','numOfIter','popSize','chance'])
 
@@ -196,13 +195,20 @@ def getFitness(solution, distanceMatrix, startPriorityList):
     
     return (dist * 0.1) / (averagePriority**2)
 
-def genarateNewListOfGenomes(oldList):
+def chooseNewListOfGenomes(oldList):
 # wybieranie nowej listy osobnikow
 # wyboru dokonujemy za pomoca turnieju
-
+# wyboru dokonujemy za
     newList = []
     newList.append(oldList[0])
+    oldListLen = len(oldList)
 
+    while len(newList) <= oldListLen:
+
+        index = np.int16(np.floor(np.sqrt(random.randint(1,oldListLen*oldListLen))))
+        newList.append(oldList[oldListLen - index])
+
+    '''
     while len(newList) <= len(oldList):
 
         [index,index2] = generateTwoRandIndx(oldList)
@@ -211,7 +217,7 @@ def genarateNewListOfGenomes(oldList):
             newList.append(oldList[index])
         else:
             newList.append(oldList[index2])
-
+    '''
     genomeList = copy.deepcopy(newList)
 
     return genomeList
@@ -237,7 +243,7 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
 
     bestGenomesList = []
 
-# generowanie poczatkowej listy genowmow
+    # generowanie poczatkowej listy genowmow
 
     genomeList = []
 
@@ -272,7 +278,7 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
 
         tempList.sort(key=lambda list1: list1[0])
 
-        genomeList = genarateNewListOfGenomes(tempList)
+        genomeList = chooseNewListOfGenomes(tempList)
         bestGenomesList.append((genomeList[0])[0]) # zapisywanie najlepszego osobnika
         #clear = lambda: os.system('cls')
         #clear()
