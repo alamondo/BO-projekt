@@ -39,5 +39,8 @@ def showTestResults(testResultsMatrix):
     i = 1
     for each in testResultsMatrix:
         print('test#:',i)
-        print('result:',np.int16(each[0]),'\nnum of interations: ',each[1],'\npopulation size:    ',each[2],'\nchance of crossover:',each[3],'\n')
+        print('result:               ',np.int16(each[0]),
+              '\nnum of interations: ',each[1],
+              '\npopulation size:    ',each[2],
+              '\nchance of crossover:',each[3],'\n')
         i += 1
