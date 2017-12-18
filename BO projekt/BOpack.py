@@ -58,6 +58,23 @@ def mutate(genome,goodsList):
 
     return solution
 
+
+def mutatention(genome,goodsList):
+# mutacja pojedynczego przebiegu poprzez podmiane pojedynczego produktu występujący obok
+
+    x = random.randint(0,genome[:,1].size-1)
+    y = random.randint(0,genome[1,:].size-1)
+    
+    if x == 0 or y == 0:
+        genome[x+1][y+1] = genome[x][y]
+    else:
+        genome[x-1][y-1] = genome[x][y]
+        
+    solution = prepareSolution(genome)
+
+    return solution
+
+
 def crossover(genome1,genome2):
 # skrzyzowanie dwoch osobnikow poprzez przeciecie ich w polowie
 # a nastepnie dolozenie drugiej czesci drugiego osobnika do pierwszej pierszego
@@ -175,7 +192,6 @@ def getFitness(solution, distanceMatrix, startPriorityList):
 # TODO przyspieszyc
     '''
     endPriorityList = copy.deepcopy(startPriorityList)
-
     for eachRow in solution:
         for eachCell in eachRow:
             endPriorityList[eachCell-1][1] += 1
@@ -211,9 +227,7 @@ def chooseNewListOfGenomes(oldList):
 
     '''
     while len(newList) <= len(oldList):
-
         [index,index2] = generateTwoRandIndx(oldList)
-
         if oldList[index][0] <= oldList[index2][0]:
             newList.append(oldList[index])
         else:
