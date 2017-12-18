@@ -1,4 +1,5 @@
 import os
+import sys
 import csv
 import random
 import copy
@@ -215,7 +216,7 @@ def getFitness(solution, distanceMatrix, startPriorityList):
 def chooseNewListOfGenomes(oldList):
 # wybieranie nowej listy osobnikow
 # wyboru dokonujemy za pomoca turnieju
-# wyboru dokonujemy za
+# wyboru dokonujemy za pomoca rozkladu kwadratowego
     newList = []
     newList.append(oldList[0])
     oldListLen = len(oldList)
@@ -299,10 +300,10 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
         bestGenomesList.append((genomeList[0])[0]) # zapisywanie najlepszego osobnika
         #clear = lambda: os.system('cls')
         #clear()
-        print (' ',(100*i/numberOfIterations),'%')
+        print ('\r % 3.2f'%(100*i/numberOfIterations),'%',end='')
+        sys.stdout.flush()
 
-
-        print(datetime.datetime.now()-start)
+        #print(datetime.datetime.now()-start)
     '''
     print('end')
     print ((genomeList[0])[0])
