@@ -5,6 +5,9 @@ import random
 import copy
 import datetime
 import numpy as np
+from multiprocessing import Pool
+import threading
+
 
 
 def generateGoodsList(goodsListSize):
@@ -61,13 +64,17 @@ def mutate(genome,goodsList):
 
 
 def mutatention(genome,goodsList):
-# mutacja pojedynczego przebiegu poprzez podmiane pojedynczego produktu występujący obok
+# mutacja pojedynczego przebiegu poprzez podmiane pojedynczego produktu wystepujacy obok
 
     x = random.randint(0,genome[:,1].size-1)
     y = random.randint(0,genome[1,:].size-1)
     
-    if x == 0 or y == 0:
+    if x == 0 and y == 0:
         genome[x+1][y+1] = genome[x][y]
+    elif x == 0 and (y == genome[1,:].size-1):
+        genome[x+1][y-1] = genome[x][y]
+    elif (x == genome[:,1].size-1) and y == 0:
+        genome[x-1][y+1] = genome[x][y]
     else:
         genome[x-1][y-1] = genome[x][y]
         
@@ -184,13 +191,16 @@ def saveCsvFile(input):
     ofile.close()
 
 
-def getFitness(solution, distanceMatrix, startPriorityList):
+def getFitness(solution):
 # obliczania wskaznika 'fitu' dla pojedynczego przebiegu
 # obliczany jest on tylko dla jednej czesci
 # postac tego wskaznika: suma odleglosci poamiedzy produktami w pojedynczych wyjazdach
 # (bez powrotu do bazy)
 # dodano wskaznik piorytetu
 # TODO przyspieszyc
+
+    global distMatrix
+    global prioList
     '''
     endPriorityList = copy.deepcopy(startPriorityList)
     for eachRow in solution:
@@ -200,15 +210,15 @@ def getFitness(solution, distanceMatrix, startPriorityList):
     '''
     sumOfPriority = 0        
 
-    for each in startPriorityList:
+    for each in prioList:
         sumOfPriority += each[2]
 
-    averagePriority = sumOfPriority / len(startPriorityList)
+    averagePriority = sumOfPriority / len(prioList)
     dist = 0
     
     for i in range(solution[:,1].size): # ilosc powtorzen
         for j in range(solution[1,:].size-1): # masa  przewioziona
-            dist += distanceMatrix[solution[i][j]-1][solution[i][j+1]-1]
+            dist += distMatrix[solution[i][j]-1][solution[i][j+1]-1]
         dist += 10
     
     return dist/averagePriority
@@ -248,6 +258,12 @@ def generateTwoRandIndx(listOfGenomes):
 
     return [index,index2]
 
+def generateSolFitnessTuple(solution,results,it):
+
+    results[it] = [getFitness(solution), solution]
+
+    return None
+
 def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMatrix,goodsList,startPriorityList):
 # tu sie dzieje magia
 # glowna czesc programu
@@ -255,6 +271,13 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
 # wybieramy pomiedzy mutacja a krzyzowaniem za pomoca 'ruletki'
 # zachowujemy najlepszy osobnik z poprzedniej iteracji
 # wybieramy nowa liste osobnik
+# TODO chuj dupa multithreading nie działa szybcjej zmienic na processing package
+
+    global prioList
+    prioList = startPriorityList
+
+    global distMatrix
+    distMatrix = distanceMatrix
 
 
     bestGenomesList = []
@@ -264,48 +287,52 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
     genomeList = []
 
     for _ in range(0, numberOfIndividuals):
-        tempSol = generateExampleSolution(20, 50, goodsList)
-        genomeList.append([getFitness(tempSol, distanceMatrix, startPriorityList), tempSol])
+        tempSol = generateExampleSolution(50, 30, goodsList)
+        genomeList.append([getFitness(tempSol), tempSol])
 
     # wykonanie zadanej ilosci iteracji
 
     for i in range(0,numberOfIterations):
         start = datetime.datetime.now()
         tempList = []
-        #tempArray = np.zeros()
-        tempList.append(genomeList[0])
+        tempList.append(genomeList[0][1])
 
         # mutowanie badz krzyzowanie
 
-        for j in range(0,numberOfIndividuals-1):
+        for j in range(0,numberOfIndividuals - 1):
 
             randomNumber = random.randint(1,100)
 
             if randomNumber > chanceOfCrossover:
-                tempSol = mutate(genomeList[j][1],goodsList)
+                tempSol = mutatention(genomeList[j][1],goodsList)
             else:
                 [index,index2] = generateTwoRandIndx(genomeList)
                 tempSol = crossover(genomeList[index][1],genomeList[index2][1])
+            tempList.append(tempSol)                            # dla wielowatkowosci
+            #tempList.append([getFitness(tempSol), tempSol])    # zwyklego liczenia
 
-            tempList.append([getFitness(tempSol, distanceMatrix, startPriorityList), tempSol])
+        # tu si multithreading zaczyna
+
+        results = [None] * (len(tempList)-1)
+
+        for j in range(len(tempList)-1):
+            t = threading.Thread(target=generateSolFitnessTuple, args=(tempList[j],results,j))
+            t.start()
+            t.join()
+
+        tempList = results
+
+        # a tu konczy
 
         # sortowanie tylko po wartosci fitu
         # array z np nie nadaje sie do sortowania
 
-        #tempArray = np.array(tempList)
-
         tempList.sort(key=lambda list1: list1[0])
-
         genomeList = chooseNewListOfGenomes(tempList)
-        bestGenomesList.append((genomeList[0])[0]) # zapisywanie najlepszego osobnika
-        #clear = lambda: os.system('cls')
-        #clear()
-        print ('\r % 3.2f'%(100*i/numberOfIterations),'%',end='')
+        tempList.sort(key=lambda list1: list1[0])
+        bestGenomesList.append([(genomeList[0])[0],(genomeList[-1])[0]]) # zapisywanie najlepszego i najgorszego osobnika
+
+        print ('\r % 3.2f'%(100*i/numberOfIterations),'% ',datetime.datetime.now()-start,end='')
         sys.stdout.flush()
 
-        #print(datetime.datetime.now()-start)
-    '''
-    print('end')
-    print ((genomeList[0])[0])
-    '''
     return bestGenomesList

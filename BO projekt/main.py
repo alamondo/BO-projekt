@@ -2,27 +2,27 @@ import BOpack as bo
 import matplotlib.pyplot as plt
 import testModule
 import random
-import numpy as np
 
-# TODO jakies inne mutowanie
 # TODO jakies inne krzyzowanie
+# TODO dodanie wyświetlania srednich i najgorszych osobnikow populacji
+# TODO testy dziwnych przypadkow
+# TODO rozne parametry rozwiazan (nie zawartych w funkcji celu)
+# TODO graficzna prezentacja wynikow
+
 '''
-temp = testModule.test([100,200,300],[25,25,50,50,25],[70],None)
+temp = testModule.test([100],[150],[60],None)
 
 testModule.showTestResults(temp)
 
 bo.saveCsvFile(temp)
 
 '''
-
-
-random.seed(12)
+random.seed(2137)
 distanceMatrix = bo.openCsvFile('tabelaOdleglosci.csv')
 goods = bo.generateGoodsList(112)
-priority = bo.generatePriorityList(112)
+startPriorityList = bo.generatePriorityList(112)
 
-plotData = bo.doMagic(20, 20, 70, distanceMatrix, goods, priority)
-
+plotData = bo.doMagic(20, 300, 60, distanceMatrix, goods, startPriorityList )
 plt.plot(plotData)
 plt.title('temp')
 plt.show()

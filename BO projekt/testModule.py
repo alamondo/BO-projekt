@@ -1,6 +1,5 @@
 import BOpack as bo
 import random
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 
