@@ -198,7 +198,7 @@ def getFitness(solution):
 # postac tego wskaznika: suma odleglosci poamiedzy produktami w pojedynczych wyjazdach
 # (bez powrotu do bazy)
 # dodano wskaznik piorytetu
-# TODO poprawic TO NIE DZIALA!!!!!!!
+
 
     global distMatrix
     global prioList
