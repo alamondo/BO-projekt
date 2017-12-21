@@ -7,6 +7,7 @@ import datetime
 import numpy as np
 from multiprocessing import Pool
 import threading
+import matplotlib.pyplot as plt
 
 
 
@@ -41,16 +42,16 @@ def generatePriorityList(problemSize):
 # generowanie obecnego stanu sklepu
 # obliczanie piorytetu 
     
-    tempList = []
+    prioList = []
     
     for _ in range(problemSize):
         tempTuple = []
         tempTuple.append(random.randint(1, 20))
         tempTuple.append(random.randint(0,tempTuple[0]))
         tempTuple.append(tempTuple[1]/tempTuple[0])
-        tempList.append(tempTuple)
+        prioList.append(tempTuple)
     
-    return tempList
+    return prioList
 
 def mutate(genome,goodsList):
 # mutacja pojedynczego przebiegu poprzez podmiane pojedynczego produktu na inny (badz taki sam) wybrany losowo
@@ -197,23 +198,28 @@ def getFitness(solution):
 # postac tego wskaznika: suma odleglosci poamiedzy produktami w pojedynczych wyjazdach
 # (bez powrotu do bazy)
 # dodano wskaznik piorytetu
-# TODO przyspieszyc
+# TODO poprawic TO NIE DZIALA!!!!!!!
 
     global distMatrix
     global prioList
-    '''
-    endPriorityList = copy.deepcopy(startPriorityList)
+
+    punishment = 0
+    endPriorityList = copy.deepcopy(prioList)
+
     for eachRow in solution:
         for eachCell in eachRow:
-            endPriorityList[eachCell-1][1] += 1
-            endPriorityList[eachCell-1][2] = endPriorityList[eachCell-1][1]/endPriorityList[eachCell-1][0]
-    '''
-    sumOfPriority = 0        
+            if endPriorityList[eachCell-1][2] < 1:
+                endPriorityList[eachCell-1][1] += 1
+                endPriorityList[eachCell-1][2] = endPriorityList[eachCell-1][1]/endPriorityList[eachCell-1][0]
+            else:
+                punishment += 10
 
-    for each in prioList:
+    sumOfPriority = 0
+
+    for each in endPriorityList:
         sumOfPriority += each[2]
 
-    averagePriority = sumOfPriority / len(prioList)
+    averagePriority = sumOfPriority / len(endPriorityList)
     dist = 0
     
     for i in range(solution[:,1].size): # ilosc powtorzen
@@ -224,13 +230,15 @@ def getFitness(solution):
     return dist/averagePriority
 
 def chooseNewListOfGenomes(oldList):
+
+
 # wybieranie nowej listy osobnikow
 # wyboru dokonujemy za pomoca turnieju
 # wyboru dokonujemy za pomoca rozkladu kwadratowego
     newList = []
     newList.append(oldList[0])
     oldListLen = len(oldList)
-
+    '''
     while len(newList) <= oldListLen:
 
         index = np.int16(np.floor(np.sqrt(random.randint(1,oldListLen*oldListLen))))
@@ -243,7 +251,7 @@ def chooseNewListOfGenomes(oldList):
             newList.append(oldList[index])
         else:
             newList.append(oldList[index2])
-    '''
+
     genomeList = copy.deepcopy(newList)
 
     return genomeList
@@ -263,6 +271,7 @@ def generateSolFitnessTuple(solution,results,it):
     results[it] = [getFitness(solution), solution]
 
     return None
+
 
 def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMatrix,goodsList,startPriorityList):
 # tu sie dzieje magia
@@ -285,7 +294,7 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
     # generowanie poczatkowej listy genowmow
 
     genomeList = []
-
+    plt.ion()
     for _ in range(0, numberOfIndividuals):
         tempSol = generateExampleSolution(50, 30, goodsList)
         genomeList.append([getFitness(tempSol), tempSol])
@@ -299,7 +308,7 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
 
         # mutowanie badz krzyzowanie
 
-        for j in range(0,numberOfIndividuals - 1):
+        for j in range(1,numberOfIndividuals - 1):
 
             randomNumber = random.randint(1,100)
 
@@ -332,7 +341,13 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
         tempList.sort(key=lambda list1: list1[0])
         bestGenomesList.append([(genomeList[0])[0],(genomeList[-1])[0]]) # zapisywanie najlepszego i najgorszego osobnika
 
-        print ('\r % 3.2f'%(100*i/numberOfIterations),'% ',datetime.datetime.now()-start,end='')
+        timeOfiteration = datetime.datetime.now()-start
+
+        print ('\r % 3.2f'%(100*i/numberOfIterations),'% remaining time: ',((numberOfIterations-i)*timeOfiteration).seconds,'s',end='')
         sys.stdout.flush()
+        plt.plot(bestGenomesList)
+        plt.title('temp')
+        plt.show()
+        plt.pause(0.0001)
 
     return bestGenomesList
