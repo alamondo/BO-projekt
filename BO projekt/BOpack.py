@@ -208,7 +208,7 @@ def getFitness(solution):
 
     for eachRow in solution:
         for eachCell in eachRow:
-            if endPriorityList[eachCell-1][2] < 1:
+            if endPriorityList[eachCell-1][1] < endPriorityList[eachCell-1][0]:
                 endPriorityList[eachCell-1][1] += 1
                 endPriorityList[eachCell-1][2] = endPriorityList[eachCell-1][1]/endPriorityList[eachCell-1][0]
             else:
@@ -227,7 +227,7 @@ def getFitness(solution):
             dist += distMatrix[solution[i][j]-1][solution[i][j+1]-1]
         dist += 10
     
-    return dist/averagePriority
+    return dist/averagePriority + punishment
 
 def chooseNewListOfGenomes(oldList):
 
@@ -238,7 +238,7 @@ def chooseNewListOfGenomes(oldList):
     newList = []
     newList.append(oldList[0])
     oldListLen = len(oldList)
-    '''
+
     while len(newList) <= oldListLen:
 
         index = np.int16(np.floor(np.sqrt(random.randint(1,oldListLen*oldListLen))))
@@ -251,7 +251,7 @@ def chooseNewListOfGenomes(oldList):
             newList.append(oldList[index])
         else:
             newList.append(oldList[index2])
-
+    '''
     genomeList = copy.deepcopy(newList)
 
     return genomeList
@@ -272,6 +272,35 @@ def generateSolFitnessTuple(solution,results,it):
 
     return None
 
+def showRunDetails(solution, prioList):
+
+    endPriorityList = copy.deepcopy(prioList)
+    sumOfPriority = 0
+    for each in endPriorityList:
+        sumOfPriority += each[2]
+
+    averagePriority = sumOfPriority / len(endPriorityList)
+    #print('\npoczatkowy sredni priorytet',averagePriority)
+    numOfUselessRuns= 0
+    for eachRow in solution:
+        for eachCell in eachRow:
+            if endPriorityList[eachCell-1][1] < endPriorityList[eachCell-1][0]:
+                endPriorityList[eachCell - 1][1] += 1
+                endPriorityList[eachCell - 1][2] = endPriorityList[eachCell - 1][1] / endPriorityList[eachCell - 1][0]
+            else:
+                numOfUselessRuns += 1
+
+    sumOfPriority = 0
+    for each in endPriorityList:
+        sumOfPriority += each[2]
+
+    finalAveragePriority = sumOfPriority / len(endPriorityList)
+    #print('koncowy sredni priorytet', finalAveragePriority)
+    #print('liczba niepotrzebnie przewiezionych towarow: ',numOfUselessRuns)
+    #for i in range(len(endPriorityList)-1):
+    #    print('bylo: %i jest: %i max: %i' %(prioList[i][1],endPriorityList[i][1],prioList[i][0]))
+
+    return (averagePriority,finalAveragePriority,numOfUselessRuns)
 
 def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMatrix,goodsList,startPriorityList):
 # tu sie dzieje magia
@@ -280,7 +309,7 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
 # wybieramy pomiedzy mutacja a krzyzowaniem za pomoca 'ruletki'
 # zachowujemy najlepszy osobnik z poprzedniej iteracji
 # wybieramy nowa liste osobnik
-# TODO chuj dupa multithreading nie działa szybcjej zmienic na processing package
+
 
     global prioList
     prioList = startPriorityList
@@ -296,7 +325,7 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
     genomeList = []
     plt.ion()
     for _ in range(0, numberOfIndividuals):
-        tempSol = generateExampleSolution(50, 30, goodsList)
+        tempSol = generateExampleSolution(20, 20, goodsList)
         genomeList.append([getFitness(tempSol), tempSol])
 
     # wykonanie zadanej ilosci iteracji
@@ -304,7 +333,7 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
     for i in range(0,numberOfIterations):
         start = datetime.datetime.now()
         tempList = []
-        tempList.append(genomeList[0][1])
+        tempList.append(genomeList[0])
 
         # mutowanie badz krzyzowanie
 
@@ -317,11 +346,11 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
             else:
                 [index,index2] = generateTwoRandIndx(genomeList)
                 tempSol = crossover(genomeList[index][1],genomeList[index2][1])
-            tempList.append(tempSol)                            # dla wielowatkowosci
-            #tempList.append([getFitness(tempSol), tempSol])    # zwyklego liczenia
+            #tempList.append(tempSol)                            # dla wielowatkowosci
+            tempList.append([getFitness(tempSol), tempSol])    # zwyklego liczenia
 
         # tu si multithreading zaczyna
-
+        '''
         results = [None] * (len(tempList)-1)
 
         for j in range(len(tempList)-1):
@@ -330,7 +359,7 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
             t.join()
 
         tempList = results
-
+        '''
         # a tu konczy
 
         # sortowanie tylko po wartosci fitu
@@ -338,16 +367,19 @@ def doMagic(numberOfIterations,numberOfIndividuals,chanceOfCrossover,distanceMat
 
         tempList.sort(key=lambda list1: list1[0])
         genomeList = chooseNewListOfGenomes(tempList)
-        tempList.sort(key=lambda list1: list1[0])
-        bestGenomesList.append([(genomeList[0])[0],(genomeList[-1])[0]]) # zapisywanie najlepszego i najgorszego osobnika
-
+        genomeList.sort(key=lambda list1: list1[0])
+        bestGenomesList.append([(genomeList[0])[0],(genomeList[np.int16(np.floor(len(genomeList)/2))])[0],(genomeList[-1])[0]]) # zapisywanie najlepszego i najgorszego osobnika
         timeOfiteration = datetime.datetime.now()-start
 
         print ('\r % 3.2f'%(100*i/numberOfIterations),'% remaining time: ',((numberOfIterations-i)*timeOfiteration).seconds,'s',end='')
         sys.stdout.flush()
-        plt.plot(bestGenomesList)
+        '''
+        plt.plot(bestGenomesList,color='b')
         plt.title('temp')
         plt.show()
         plt.pause(0.0001)
-
-    return bestGenomesList
+        '''
+    #print(genomeList[0])
+    #showRunDetails((genomeList[0])[1],startPriorityList)
+    #return bestGenomesList
+    return(genomeList[0])
