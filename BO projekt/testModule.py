@@ -22,24 +22,32 @@ def test(vectorOfIterNum,vectorOfPopulationSizes,vectorOfCrossChances,randomSeed
                 clear()
                 print(' ',np.int16(100 * thingsChecked / numberOfThingsToCheck), '%')
                 thingsChecked += 1
+                temp = bo.doMagic(eachIterNum, eachPopSize, eachChance, distanceMatrix, goods, priority)
+                result = temp[0]
+                solution = temp[1]
                 data.append([
-                    np.int16(bo.doMagic(eachIterNum,eachPopSize,eachChance,distanceMatrix,goods,priority)[-1]),
+                    np.int16(result),
                     eachIterNum,
                     eachPopSize,
-                    eachChance
+                    eachChance,
+                    bo.showRunDetails(solution,priority),
                 ])
 
     return data
-
+# TODO usprawnic showRunDetails (nie dzia w tej formie zwracania wyniku)
 def showTestResults(testResultsMatrix):
 # prezentowanie wynikow testow
 # ultra biedne
 
     i = 1
     for each in testResultsMatrix:
-        print('test#:',i)
-        print('result:               ',np.int16(each[0]),
-              '\nnum of interations: ',each[1],
-              '\npopulation size:    ',each[2],
-              '\nchance of crossover:',each[3],'\n')
+        print('\ntest#:',i)
+        print('result:                  ',each[0],
+              '\nnum of interations:    ',each[1],
+              '\npopulation size:       ',each[2],
+              '\nchance of crossover:   ',each[3],
+              '\nmean piority:          ',each[4][0],
+              '\nfinal mean priority:   ',each[4][1],
+              '\nnumber of useless runs:',each[4][2],
+              '\n')
         i += 1
