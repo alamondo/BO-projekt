@@ -1,10 +1,12 @@
-import BOpack as bo
-import random
-import numpy as np
 import os
+import random
 
-def test(vectorOfIterNum,vectorOfPopulationSizes,vectorOfCrossChances,randomSeed):
-# wykonanie algorytmu dla wszystkich kombinacji wartosci w wektorach
+import BOpack as bo
+import numpy as np
+
+
+def test(vectorOfIterNum, vectorOfPopulationSizes, vectorOfCrossChances, randomSeed):
+    # wykonanie algorytmu dla wszystkich kombinacji wartosci w wektorach
 
     numberOfThingsToCheck = len(vectorOfCrossChances) * len(vectorOfPopulationSizes) * len(vectorOfIterNum)
     thingsChecked = 1
@@ -20,7 +22,7 @@ def test(vectorOfIterNum,vectorOfPopulationSizes,vectorOfCrossChances,randomSeed
             for eachChance in vectorOfCrossChances:
                 clear = lambda: os.system('cls')
                 clear()
-                print(' ',np.int16(100 * thingsChecked / numberOfThingsToCheck), '%')
+                print(' ', np.int16(100 * thingsChecked / numberOfThingsToCheck), '%')
                 thingsChecked += 1
                 temp = bo.doMagic(eachIterNum, eachPopSize, eachChance, distanceMatrix, goods, priority)
                 result = temp[0]
@@ -30,24 +32,25 @@ def test(vectorOfIterNum,vectorOfPopulationSizes,vectorOfCrossChances,randomSeed
                     eachIterNum,
                     eachPopSize,
                     eachChance,
-                    bo.showRunDetails(solution,priority),
+                    bo.showRunDetails(solution, priority),
                 ])
 
     return data
-# TODO usprawnic showRunDetails (nie dzia w tej formie zwracania wyniku)
+
+
 def showTestResults(testResultsMatrix):
-# prezentowanie wynikow testow
-# ultra biedne
+    # prezentowanie wynikow testow
+    # ultra biedne
 
     i = 1
     for each in testResultsMatrix:
-        print('\ntest#:',i)
-        print('result:                  ',each[0],
-              '\nnum of interations:    ',each[1],
-              '\npopulation size:       ',each[2],
-              '\nchance of crossover:   ',each[3],
-              '\nmean piority:          ',each[4][0],
-              '\nfinal mean priority:   ',each[4][1],
-              '\nnumber of useless runs:',each[4][2],
+        print('\ntest#:', i,
+              '\nresult:                ', each[0],
+              '\nnum of iterations:     ', each[1],
+              '\npopulation size:       ', each[2],
+              '\nchance of crossover:   ', each[3],
+              '\nmean priority:         ', each[4][0],
+              '\nfinal mean priority:   ', each[4][1],
+              '\nnumber of useless runs:', each[4][2],
               '\n')
         i += 1
