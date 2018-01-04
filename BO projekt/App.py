@@ -288,10 +288,5 @@ class MainWindow(QTabWidget):
 
 
 
-if __name__ == '__main__':
-    print('Waiting for app...')
-    app = QApplication(sys.argv)
-    ex = MainWindow()
-    print('App runnig')
-    sys.exit(app.exec_())
+
 

@@ -1,16 +1,15 @@
-import random
+from App import *
 
+import random
 import BOpack as bo
 import matplotlib.pyplot as plt
 import testModule
 
 # TODO wyświetlanie komunikatow w oknie aplikacji zamiast konosli
-'''
-#temp = testModule.test([200],[25,50,100,150],[0,10,20,30,40,50,60,70,80,90,100],None)
-temp = testModule.test([100],[250],[40],None)
-testModule.showTestResults(temp)
 
-bo.saveCsvFile(temp)
-'''
-
-bo.generatePriorityListFromCSV('case0.csv')
+if __name__ == '__main__':
+    print('Waiting for app...')
+    app = QApplication(sys.argv)
+    ex = MainWindow()
+    print('App runnig')
+    sys.exit(app.exec_())
