@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QPushButton, QLineEdit,
                              QInputDialog, QApplication, QMainWindow,
                              QAction, qApp, QLabel,QFormLayout,QHBoxLayout,
-                             QFileDialog, QSpinBox)
+                             QFileDialog, QSpinBox, QTabWidget)
 
 import BOpack as bo
 import sys
@@ -130,7 +130,7 @@ class TestWidget(QWidget):
 
     randSeed = 'None'
     pathString = 'tabelaOdleglosci.csv'
-    stateString = 'aaa'
+    stateString = 'Random'
 
     def __init__(self):
         super().__init__()
@@ -145,7 +145,7 @@ class TestWidget(QWidget):
 
         try:
 
-            if self.randSeedInput.text() == 'None':
+            if self.randSeedInput.text() == 'Random':
                 randSeed = None
             else:
                 randSeed = int(self.randSeedInput.text())
@@ -205,7 +205,7 @@ class TestWidget(QWidget):
         self.chanceVectorInput = QLineEdit(self)
 
         self.rndLbl = QLabel(self)
-        self.rndLbl.setText('Seed - None for random')
+        self.rndLbl.setText('Seed')
 
         self.randSeedInput = QLineEdit(self)
         self.randSeedInput.setText(self.randSeed)
@@ -220,7 +220,7 @@ class TestWidget(QWidget):
         self.path.setText(self.pathString)
 
         self.statepath = QLineEdit(self)
-        self.statepath.setText('start state')
+        self.statepath.setText('Random')
 
         # form layout
 
@@ -262,47 +262,30 @@ class TestWidget(QWidget):
         self.statepath.setText(fname[0])
         self.stateString = fname[0]
 
-class MainWindow(QMainWindow):
+class MainWindow(QTabWidget):
 
     def __init__(self):
         super().__init__()
 
-        self.start_widget = StartWidget()
-        self.test_widget = TestWidget()
-        self.setCentralWidget(self.start_widget)
-
         self.initUI()
-
-    def setMainWidgetTest(self):
-        self.test_widget = TestWidget()
-        self.setWindowTitle('Generator trasy - Testy')
-        self.setCentralWidget(self.test_widget)
-
-    def setMainWidgetStart(self):
-        self.start_widget = StartWidget()
-        self.setWindowTitle('Generator trasy')
-        self.setCentralWidget(self.start_widget)
 
     def initUI(self):
 
-        self.addMyToolBar()
-        self.setGeometry(300, 300, 290, 100)
+        self.addTabs()
+        self.adjustSize()
+        self.setFixedSize(self.size())
         self.setWindowTitle('Generator trasy')
 
         self.show()
 
-    def addMyToolBar(self):
+    def addTabs(self):
 
-        single = QAction('single run', self)
-        single.triggered.connect(self.setMainWidgetStart)
+        self.tab1 = StartWidget()
+        self.tab2 = TestWidget()
 
-        tests = QAction('tests', self)
-        tests.triggered.connect(self.setMainWidgetTest)
+        self.addTab(self.tab1,'Single Run')
+        self.addTab(self.tab2,'Tests')
 
-        self.toolbar = self.addToolBar('toolbar')
-        self.toolbar.setMovable(False)
-        self.toolbar.addAction(single)
-        self.toolbar.addAction(tests)
 
 
 if __name__ == '__main__':
