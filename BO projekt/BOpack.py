@@ -97,11 +97,6 @@ def crossover(genome1, genome2):
     return solution
 
 
-def packIntoNpArray(numberOfCols, numberOfRows):
-    # to chyba jest od usuniecia
-    print('cols: ', numberOfCols, ' rows: ', numberOfRows)
-
-
 def prepareSolution(solution):
     # polepaszanie rozwiazania
     # sortowanie zrobione
@@ -251,7 +246,6 @@ def generateTwoRandIndx(listOfGenomes):
 
 def generateSolFitnessTuple(solution, results, it):
     results[it] = [getFitness(solution), solution]
-
     return None
 
 
@@ -322,7 +316,7 @@ def doMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distance
             randomNumber = random.randint(1, 100)
 
             if randomNumber > chanceOfCrossover:
-                tempSol = mutatention(genomeList[j][1], goodsList)
+                tempSol = mutate(genomeList[j][1], goodsList)
             else:
                 [index, index2] = generateTwoRandIndx(genomeList)
                 tempSol = crossover(genomeList[index][1], genomeList[index2][1])
@@ -330,18 +324,6 @@ def doMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distance
             # tempList.append(tempSol)                            # dla wielowatkowosci
             tempList.append([getFitness(tempSol), tempSol])  # zwyklego liczenia
 
-        # tu si multithreading zaczyna
-        '''
-        results = [None] * (len(tempList)-1)
-
-        for j in range(len(tempList)-1):
-            t = threading.Thread(target=generateSolFitnessTuple, args=(tempList[j],results,j))
-            t.start()
-            t.join()
-
-        tempList = results
-        '''
-        # a tu konczy
 
         # sortowanie tylko po wartosci fitu
         # array z np nie nadaje sie do sortowania
@@ -362,7 +344,65 @@ def doMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distance
         plt.show()
         plt.pause(0.0001)
         '''
-    # print(genomeList[0])
-    # showRunDetails((genomeList[0])[1],startPriorityList)
-    # return bestGenomesList
+
+    #return bestGenomesList
     return (genomeList[0])
+
+    def testMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList,
+                  startPriorityList):
+
+        # dawne doMagic w wersji do testów
+
+        global prioList
+        prioList = startPriorityList
+
+        global distMatrix
+        distMatrix = distanceMatrix
+
+        bestGenomesList = []
+
+        # generowanie poczatkowej listy genowmow
+
+        genomeList = []
+        plt.ion()
+        for _ in range(0, numberOfIndividuals):
+            tempSol = generateExampleSolution(20, 20, goodsList)
+            genomeList.append([getFitness(tempSol), tempSol])
+
+        # wykonanie zadanej ilosci iteracji
+
+        for i in range(0, numberOfIterations):
+            start = datetime.datetime.now()
+            tempList = []
+            tempList.append(genomeList[0])
+
+            # mutowanie badz krzyzowanie
+
+            for j in range(1, numberOfIndividuals - 1):
+                randomNumber = random.randint(1, 100)
+
+                if randomNumber > chanceOfCrossover:
+                    tempSol = mutate(genomeList[j][1], goodsList)
+                else:
+                    [index, index2] = generateTwoRandIndx(genomeList)
+                    tempSol = crossover(genomeList[index][1], genomeList[index2][1])
+
+                # tempList.append(tempSol)                            # dla wielowatkowosci
+                tempList.append([getFitness(tempSol), tempSol])  # zwyklego liczenia
+
+            # sortowanie tylko po wartosci fitu
+            # array z np nie nadaje sie do sortowania
+
+            tempList.sort(key=lambda list1: list1[0])
+            genomeList = chooseNewListOfGenomes(tempList)
+            genomeList.sort(key=lambda list1: list1[0])
+            bestGenomesList.append([(genomeList[0])[0], (genomeList[np.int16(np.floor(len(genomeList) / 2))])[0],
+                                    (genomeList[-1])[0]])  # zapisywanie najlepszego i najgorszego osobnika
+            timeOfiteration = datetime.datetime.now() - start
+
+            print('\r % 3.2f' % (100 * i / numberOfIterations), '% remaining time: ',
+                  ((numberOfIterations - i) * timeOfiteration).seconds, 's', end='')
+            sys.stdout.flush()
+
+        return (genomeList[0])
+

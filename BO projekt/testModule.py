@@ -24,7 +24,9 @@ def test(vectorOfIterNum, vectorOfPopulationSizes, vectorOfCrossChances, randomS
                 clear()
                 print(' ', np.int16(100 * thingsChecked / numberOfThingsToCheck), '%')
                 thingsChecked += 1
+                print('dupa')
                 temp = bo.doMagic(eachIterNum, eachPopSize, eachChance, distanceMatrix, goods, priority)
+                print('dupa')
                 result = temp[0]
                 solution = temp[1]
                 data.append([
