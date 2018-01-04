@@ -97,7 +97,9 @@ class StartWidget(QWidget):
 
         try:
             saveSingleRunToCSV('single_run_result',temp)
-            print('\nresults saved sucessfully')
+            clear = lambda: os.system('cls')
+            clear()
+            print('results saved sucessfully')
         except:
             print('\nERROR: run completed but failed to save')
 

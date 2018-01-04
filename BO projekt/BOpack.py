@@ -302,6 +302,16 @@ def saveSingleRunToCSV(fpath,result):
 
 
 def doMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList, startPriorityList):
+    # wraper pojedynczego przebiegu dla Magic
+    return Magic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList, startPriorityList)[0]
+
+
+def testMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList, startPriorityList):
+    # test wraper dla Magic
+    return Magic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList, startPriorityList)[1]
+
+
+def Magic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList, startPriorityList):
     # tu sie dzieje magia
     # glowna czesc programu
     # nastepnie mutujemy podczas Y iteracji
@@ -360,78 +370,5 @@ def doMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distance
         print('\r % 3.2f' % (100 * i / numberOfIterations), '% remaining time: ',
               ((numberOfIterations - i) * timeOfiteration).seconds, 's', end='')
         sys.stdout.flush()
-        '''
-        plt.plot(bestGenomesList,color='b')
-        plt.title('temp')
-        plt.show()
-        plt.pause(0.0001)
-        '''
 
-    #return bestGenomesList
-    return (genomeList[0])
-
-def testMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList,
-              startPriorityList):
-
-    # dawne doMagic w wersji do testów
-
-    global prioList
-    prioList = startPriorityList
-
-    global distMatrix
-    distMatrix = distanceMatrix
-
-    bestGenomesList = []
-
-    # generowanie poczatkowej listy genowmow
-
-    genomeList = []
-    plt.ion()
-    for _ in range(0, numberOfIndividuals):
-        tempSol = generateExampleSolution(20, 20, goodsList)
-        genomeList.append([getFitness(tempSol), tempSol])
-
-    # wykonanie zadanej ilosci iteracji
-
-    for i in range(0, numberOfIterations):
-        start = datetime.datetime.now()
-        tempList = []
-        tempList.append(genomeList[0])
-
-        # mutowanie badz krzyzowanie
-
-        for j in range(1, numberOfIndividuals - 1):
-            randomNumber = random.randint(1, 100)
-
-            if randomNumber > chanceOfCrossover:
-                tempSol = mutate(genomeList[j][1], goodsList)
-            else:
-                [index, index2] = generateTwoRandIndx(genomeList)
-                tempSol = crossover(genomeList[index][1], genomeList[index2][1])
-
-            # tempList.append(tempSol)                            # dla wielowatkowosci
-            tempList.append([getFitness(tempSol), tempSol])  # zwyklego liczenia
-
-        # sortowanie tylko po wartosci fitu
-        # array z np nie nadaje sie do sortowania
-
-        tempList.sort(key=lambda list1: list1[0])
-        genomeList = chooseNewListOfGenomes(tempList)
-        genomeList.sort(key=lambda list1: list1[0])
-        bestGenomesList.append([(genomeList[0])[0], (genomeList[np.int16(np.floor(len(genomeList) / 2))])[0],
-                                (genomeList[-1])[0]])  # zapisywanie najlepszego i najgorszego osobnika
-        timeOfiteration = datetime.datetime.now() - start
-
-        print('\r % 3.2f' % (100 * i / numberOfIterations), '% remaining time: ',
-              ((numberOfIterations - i) * timeOfiteration).seconds, 's', end='')
-        sys.stdout.flush()
-        '''
-        plt.plot(bestGenomesList,color='b')
-        plt.title('temp')
-        plt.show()
-        plt.pause(0.0001)
-        '''
-
-    # return bestGenomesList
-    return (genomeList[0])
-
+    return [genomeList[0],bestGenomesList]
