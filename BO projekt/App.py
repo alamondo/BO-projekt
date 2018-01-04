@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import (QWidget, QPushButton, QLineEdit,
                              QInputDialog, QApplication, QMainWindow,
                              QAction, qApp, QLabel,QFormLayout,QHBoxLayout,
                              QFileDialog, QSpinBox)
+from BOpack import (saveSingleRunToCSV)
 
 import BOpack as bo
 import sys
@@ -39,14 +40,14 @@ class StartWidget(QWidget):
 
         self.numIter = QSpinBox(self)
         self.numIter.setRange(0,1000)
-        self.numIter.setValue(100)
+        self.numIter.setValue(10)
 
         self.numLbl = QLabel(self)
         self.numLbl.setText('Number of iterations')
 
         self.numPop = QSpinBox(self)
         self.numPop.setRange(0,1000)
-        self.numPop.setValue(100)
+        self.numPop.setValue(10)
 
         self.popLbl = QLabel(self)
         self.popLbl.setText('Size of population')
@@ -89,9 +90,16 @@ class StartWidget(QWidget):
         goods = bo.generateGoodsList(112)
         startPriorityList = bo.generatePriorityList(112)
 
-        temp = bo.doMagic(self.numIter.value(), 10, 10, distanceMatrix, goods, startPriorityList)
+        try:
+            temp = bo.doMagic(self.numIter.value(), 10, 10, distanceMatrix, goods, startPriorityList)
+        except:
+            print('ERROR: run failed to complete')
 
-        print(temp)
+        try:
+            saveSingleRunToCSV('single_run_result',temp)
+            print('\nresults saved sucessfully')
+        except:
+            print('\nERROR: run completed but failed to save')
 
     def showDialogLay(self):
         try:
@@ -112,7 +120,10 @@ class StartWidget(QWidget):
         self.stateString = fname[0]
 
 class TestWidget(QWidget):
+
     randSeed = 'None'
+    pathString = 'tabelaOdleglosci.csv'
+    stateString = 'aaa'
 
     def __init__(self):
         super().__init__()
@@ -192,10 +203,24 @@ class TestWidget(QWidget):
         self.randSeedInput = QLineEdit(self)
         self.randSeedInput.setText(self.randSeed)
 
+        self.btn = QPushButton('Chosse shop layout', self)
+        self.btn.clicked.connect(self.showDialogLay)
+
+        self.filebtn = QPushButton('Choose shop state', self)
+        self.filebtn.clicked.connect(self.showDialogState)
+
+        self.path = QLineEdit(self)
+        self.path.setText(self.pathString)
+
+        self.statepath = QLineEdit(self)
+        self.statepath.setText('start state')
+
         # form layout
 
         layout = QFormLayout()
 
+        layout.addRow(self.btn, self.path)
+        layout.addRow(self.filebtn, self.statepath)
         layout.addRow(self.itLbl,self.iterVectorInput)
         layout.addRow(self.popLbl,self.populationVectorInput)
         layout.addRow(self.chLbl,self.chanceVectorInput)
@@ -211,6 +236,24 @@ class TestWidget(QWidget):
         self.setLayout(layout)
 
         self.repaint()
+
+    def showDialogLay(self):
+        try:
+            fname = QFileDialog.getOpenFileName(self, 'Open file')
+            print(fname)
+        except:
+            self.pathString = self.path.get
+        self.path.setText(fname[0])
+        self.pathString = fname[0]
+
+    def showDialogState(self):
+        try:
+            fname = QFileDialog.getOpenFileName(self, 'Open file')
+            print(fname)
+        except:
+            self.pathString = self.statepath.get
+        self.statepath.setText(fname[0])
+        self.stateString = fname[0]
 
 class MainWindow(QMainWindow):
 
