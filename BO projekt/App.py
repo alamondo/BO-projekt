@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import (QWidget, QPushButton, QLineEdit,
                              QInputDialog, QApplication, QMainWindow,
                              QAction, qApp, QLabel,QFormLayout,QHBoxLayout,
                              QFileDialog, QSpinBox)
-from BOpack import (saveSingleRunToCSV)
 
 import BOpack as bo
 import sys
@@ -15,7 +14,7 @@ import testModule
 class StartWidget(QWidget):
 
     pathString = 'tabelaOdleglosci.csv'
-    stateString = 'aaa'
+    stateString = 'Random'
 
     def __init__(self):
         super().__init__()
@@ -36,7 +35,7 @@ class StartWidget(QWidget):
         self.path.setText(self.pathString)
 
         self.statepath = QLineEdit(self)
-        self.statepath.setText('start state')
+        self.statepath.setText('Random')
 
         self.numIter = QSpinBox(self)
         self.numIter.setRange(0,1000)
@@ -85,10 +84,14 @@ class StartWidget(QWidget):
 
     def start(self):
 
-        random.seed(2137)
+        random.seed(None)
         distanceMatrix = bo.openCsvFile(self.pathString)
         goods = bo.generateGoodsList(112)
-        startPriorityList = bo.generatePriorityList(112)
+
+        if self.stateString == 'Random':
+            startPriorityList = bo.generatePriorityList(112)
+        else:
+            startPriorityList = bo.generatePriorityListFromCSV(self.stateString)
 
         try:
             temp = bo.doMagic(self.numIter.value(), 10, 10, distanceMatrix, goods, startPriorityList)
@@ -96,9 +99,11 @@ class StartWidget(QWidget):
             print('ERROR: run failed to complete')
 
         try:
-            saveSingleRunToCSV('single_run_result',temp)
+
+            bo.saveSingleRunToCSV('single_run_result',temp,startPriorityList)
             clear = lambda: os.system('cls')
             clear()
+            print(temp[0])
             print('results saved sucessfully')
         except:
             print('\nERROR: run completed but failed to save')

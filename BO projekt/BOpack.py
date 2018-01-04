@@ -49,6 +49,32 @@ def generatePriorityList(problemSize):
     return prioList
 
 
+def generatePriorityListFromCSV(fileName):
+
+    with open(fileName, 'rt') as csvfile:
+        prioList = []
+        spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+
+        for row in spamreader:
+            tempTuple = []
+            tempTuple.append(int(row[1]))
+            tempTuple.append(int(row[0]))
+            tempTuple.append(int(row[0])/ int(row[1]))
+            prioList.append(tempTuple)
+
+            #tempList.append(row)
+        '''
+        tempMatrix = np.zeros((112, 112), dtype=np.int16)
+
+        for i in (range(len(tempList))):
+            for j in (range(len(tempList))):
+                tempMatrix[i][j] = tempList[i][j]
+        
+        return tempMatrix
+        '''
+    return prioList
+
+
 def mutate(genome, goodsList):
     # mutacja pojedynczego przebiegu poprzez podmiane pojedynczego produktu na inny (badz taki sam) wybrany losowo
 
@@ -279,7 +305,7 @@ def showRunDetails(solution, prioList):
     return (averagePriority, finalAveragePriority, numOfUselessRuns)
 
 
-def saveSingleRunToCSV(fpath,result):
+def saveSingleRunToCSV(fpath,result,prioList):
 
     now = list(str(datetime.datetime.now()).split('.')[0])
     now[10] = '_'
@@ -289,7 +315,13 @@ def saveSingleRunToCSV(fpath,result):
 
     ofile = open('results/result_' + stamp + '.csv', "w", newline='')
     writer = csv.writer(ofile, delimiter=',')
+
+    runData = showRunDetails(result[1],prioList)
+
     writer.writerow(['cost:',result[0]])
+    writer.writerow(['avPrio:',runData[0]])
+    writer.writerow(['finalAvPrio:', runData[1]])
+    writer.writerow(['useless runs:', runData[2]])
 
     for row in result[1]:
         data = []
