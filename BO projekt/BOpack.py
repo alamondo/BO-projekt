@@ -340,7 +340,7 @@ def doMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distance
 
 def testMagic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList, startPriorityList):
     # test wraper dla Magic
-    return Magic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList, startPriorityList)[1]
+    return Magic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList, startPriorityList)[0]
 
 
 def Magic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMatrix, goodsList, startPriorityList):
