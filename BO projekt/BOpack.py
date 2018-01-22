@@ -81,7 +81,7 @@ def mutate(genome, goodsList):
     x = random.randint(0, genome[:, 1].size - 1)
     y = random.randint(0, genome[1, :].size - 1)
     genome[x][y] = goodsList[random.randint(0, len(goodsList) - 1)]
-    solution = prepareSolution(genome)
+    solution = prepareSolution(genome,goodsList)
 
     return solution
 
@@ -106,7 +106,7 @@ def mutatention(genome, goodsList):
     return solution
 
 
-def crossover(genome1, genome2):
+def crossover(genome1, genome2, goodsList):
     # skrzyzowanie dwoch osobnikow poprzez przeciecie ich w polowie
     # a nastepnie dolozenie drugiej czesci drugiego osobnika do pierwszej pierszego
     # nastepnie poprawiamy rozwiazanie
@@ -118,12 +118,12 @@ def crossover(genome1, genome2):
     for i in range(cutPoint, numCourses):
         newGenome[i, :] = genome2[i, :]
 
-    solution = prepareSolution(newGenome)
+    solution = prepareSolution(newGenome,goodsList)
 
     return solution
 
 
-def prepareSolution(solution):
+def prepareSolution(solution,goodsList):
     # polepaszanie rozwiazania
     # sortowanie zrobione
     # grupuje produkty i ustawia je w kolejnosci wedlug pierwszego wystapiena
@@ -144,11 +144,22 @@ def prepareSolution(solution):
         for _ in range(np.count_nonzero(solution == each)):
             stupidTempList.append(each)
 
+    global prioList
+    endPriorityList = copy.deepcopy(prioList)
+
     stupidTempList.reverse()
 
     for i in range(numberOfRows):
         for j in range(numberOfCols):
             tempSolution[i][j] = stupidTempList.pop()
+            if tempSolution[i][j] != 0:
+                if endPriorityList[tempSolution[i][j] - 1][2] < 1:
+                    endPriorityList[tempSolution[i][j] - 1][1] += 1
+                    endPriorityList[tempSolution[i][j] - 1][2] = endPriorityList[tempSolution[i][j] - 1][1] / endPriorityList[tempSolution[i][j] - 1][0]
+                elif endPriorityList[tempSolution[i][j] - 1][2] == 1:
+                    tempSolution[i][j] = goodsList[random.randint(0, len(goodsList) - 1)]
+
+
 
     return tempSolution
 
@@ -208,7 +219,7 @@ def getFitness(solution):
     global distMatrix
     global prioList
 
-    punishment = 0
+
     endPriorityList = copy.deepcopy(prioList)
 
     for eachRow in solution:
@@ -216,8 +227,7 @@ def getFitness(solution):
             if endPriorityList[eachCell - 1][1] < endPriorityList[eachCell - 1][0]:
                 endPriorityList[eachCell - 1][1] += 1
                 endPriorityList[eachCell - 1][2] = endPriorityList[eachCell - 1][1] / endPriorityList[eachCell - 1][0]
-            else:
-                punishment += 10
+
 
     sumOfPriority = 0
 
@@ -229,10 +239,11 @@ def getFitness(solution):
 
     for i in range(solution[:, 1].size):  # ilosc powtorzen
         for j in range(solution[1, :].size - 1):  # masa  przewioziona
-            dist += distMatrix[solution[i][j] - 1][solution[i][j + 1] - 1]
+            if solution[i][j] != 0:
+                dist += distMatrix[solution[i][j] - 1][solution[i][j + 1] - 1]
         dist += 10
 
-    return dist / averagePriority + punishment
+    return dist / averagePriority
 
 
 def chooseNewListOfGenomes(oldList):
@@ -255,6 +266,25 @@ def chooseNewListOfGenomes(oldList):
         else:
             newList.append(oldList[index2])
     '''
+    genomeList = copy.deepcopy(newList)
+
+    return genomeList
+
+def chooseNewListOfGenomesAlt(oldList):
+    # wybieranie nowej listy osobnikow
+    # wyboru dokonujemy za pomoca turnieju
+    # wyboru dokonujemy za pomoca rozkladu kwadratowego
+    newList = []
+    newList.append(oldList[0])
+    oldListLen = len(oldList)
+
+    while len(newList) <= len(oldList):
+        [index,index2] = generateTwoRandIndx(oldList)
+        if oldList[index][0] <= oldList[index2][0]:
+            newList.append(oldList[index])
+        else:
+            newList.append(oldList[index2])
+
     genomeList = copy.deepcopy(newList)
 
     return genomeList
@@ -289,7 +319,7 @@ def showRunDetails(solution, prioList):
             if endPriorityList[eachCell - 1][1] < endPriorityList[eachCell - 1][0]:
                 endPriorityList[eachCell - 1][1] += 1
                 endPriorityList[eachCell - 1][2] = endPriorityList[eachCell - 1][1] / endPriorityList[eachCell - 1][0]
-            else:
+            elif endPriorityList[eachCell - 1][2] == 1:
                 numOfUselessRuns += 1
 
     sumOfPriority = 0
@@ -364,7 +394,7 @@ def Magic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMa
     genomeList = []
     plt.ion()
     for _ in range(0, numberOfIndividuals):
-        tempSol = generateExampleSolution(20, 20, goodsList)
+        tempSol = generateExampleSolution(20, 10, goodsList)
         genomeList.append([getFitness(tempSol), tempSol])
 
     # wykonanie zadanej ilosci iteracji
@@ -383,9 +413,8 @@ def Magic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMa
                 tempSol = mutate(genomeList[j][1], goodsList)
             else:
                 [index, index2] = generateTwoRandIndx(genomeList)
-                tempSol = crossover(genomeList[index][1], genomeList[index2][1])
+                tempSol = crossover(genomeList[index][1], genomeList[index2][1],goodsList)
 
-            # tempList.append(tempSol)                            # dla wielowatkowosci
             tempList.append([getFitness(tempSol), tempSol])  # zwyklego liczenia
 
 
@@ -393,7 +422,10 @@ def Magic(numberOfIterations, numberOfIndividuals, chanceOfCrossover, distanceMa
         # array z np nie nadaje sie do sortowania
 
         tempList.sort(key=lambda list1: list1[0])
-        genomeList = chooseNewListOfGenomes(tempList)
+        if numberOfIterations > 80:
+            genomeList = chooseNewListOfGenomes(tempList)
+        else:
+            genomeList = chooseNewListOfGenomesAlt(tempList)
         genomeList.sort(key=lambda list1: list1[0])
         bestGenomesList.append([(genomeList[0])[0], (genomeList[np.int16(np.floor(len(genomeList) / 2))])[0],
                                 (genomeList[-1])[0]])  # zapisywanie najlepszego i najgorszego osobnika

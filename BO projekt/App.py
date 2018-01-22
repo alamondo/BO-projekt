@@ -41,22 +41,21 @@ class NormalRunThread(QThread):
 
         try:
             temp = bo.doMagic(self.numIter, self.numPop, self.chance, distanceMatrix, goods, startPriorityList)
+            try:
+
+                bo.saveSingleRunToCSV('single_run_result', temp, startPriorityList)
+                clear = lambda: os.system('cls')
+                clear()
+                print(temp[0])
+                self.finishedSig.emit()
+                print('Results saved sucessfully')
+
+            except:
+                print('\nERROR: run completed but failed to save')
         except:
             print('ERROR: run failed to complete')
-            print('t acc')
-
-        try:
-
-            bo.saveSingleRunToCSV('single_run_result', temp, startPriorityList)
-            clear = lambda: os.system('cls')
-            clear()
-            print(temp[0])
-            self.finishedSig.emit()
-            print('Results saved sucessfully')
 
 
-        except:
-            print('\nERROR: run completed but failed to save')
 
 class TestRunThread(QThread):
 
@@ -98,7 +97,6 @@ class TestRunThread(QThread):
                 cV.append(int(each))
 
             try:
-                print(testModule.test(iV, pV, cV, randSeed))
                 testResults = testModule.test(iV, pV, cV, randSeed)
                 # clear = lambda: os.system('cls')
                 # clear()
@@ -367,7 +365,6 @@ class TestWidget(QWidget):
     def updateWidget(self,data):
         print(data)
         self.testResults = data
-        print('dupa')
 
 class MainWindow(QTabWidget):
 
